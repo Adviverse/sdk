@@ -1,0 +1,41 @@
+{
+  "name": "@adviverse/sdk",
+  "version": "0.1.0",
+  "description": "Typed, dependency-free TypeScript client for the Adviverse ad network API (v1).",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Adviverse/sdk.git"
+  },
+  "homepage": "https://github.com/Adviverse/sdk#readme",
+  "bugs": {
+    "url": "https://github.com/Adviverse/sdk/issues"
+  }
+}

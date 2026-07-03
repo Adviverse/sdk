@@ -1,0 +1,183 @@
+// Domain types inlined from the internal @adnet/shared workspace package
+// so the published @adviverse/sdk is fully self-contained.
+
+/**
+ * @adnet/shared — canonical domain types and enums shared across the AdNet
+ * platform (dashboard frontend, control-plane, and as documentation for the Go
+ * services). These mirror the Postgres schema in infra/postgres/migrations.
+ *
+ * Consumed by the dashboard via `import type` (TypeScript path alias), so the
+ * imports are erased at build time and add no runtime weight. Backend services
+ * can adopt this package once their Docker build context includes packages/*.
+ */
+
+/* ---- enums (string unions matching the DB enum types) -------------------- */
+export type AccountType = 'advertiser' | 'publisher' | 'admin';
+export type AccountStatus = 'pending' | 'active' | 'suspended' | 'banned';
+
+export type AdFormat =
+  | 'banner'
+  | 'popunder'
+  | 'native'
+  | 'social_bar'
+  | 'interstitial'
+  | 'in_page_push'
+  | 'direct_link'
+  | 'video';
+
+export type PricingModel = 'cpm' | 'cpc' | 'cpa' | 'cpi';
+export type Pacing = 'even' | 'asap';
+
+export type CampaignStatus =
+  | 'draft'
+  | 'pending_review'
+  | 'active'
+  | 'paused'
+  | 'rejected'
+  | 'completed'
+  | 'archived';
+
+export type CreativeType = 'image' | 'native' | 'popunder_url' | 'push' | 'html5' | 'video';
+export type ModerationStatus = 'pending' | 'approved' | 'rejected';
+export type MalwareScanStatus = 'pending' | 'clean' | 'flagged' | 'skipped';
+
+export type PlacementStatus = 'active' | 'paused' | 'archived';
+export type VerificationMethod = 'dns' | 'file' | 'meta' | 'domainconnect';
+export type VerificationStatus = 'unverified' | 'pending' | 'verified';
+
+export type LedgerEntryType =
+  | 'deposit'
+  | 'spend'
+  | 'earning'
+  | 'payout'
+  | 'refund'
+  | 'referral'
+  | 'adjustment';
+
+export type PayoutMethod = 'paypal' | 'wire' | 'crypto' | 'paxum' | 'card';
+export type PayoutStatus = 'requested' | 'on_hold' | 'processing' | 'paid' | 'rejected';
+
+/* ---- core entities ------------------------------------------------------- */
+export interface Account {
+  id: string;
+  type: AccountType;
+  email: string;
+  status: AccountStatus;
+  company_name?: string | null;
+  kyc_status?: string | null;
+  quality_score?: number | null;
+  two_fa_enabled?: boolean;
+  email_verified?: boolean;
+  created_at: string;
+}
+
+export interface Property {
+  id: string;
+  account_id: string;
+  domain: string;
+  kind: string;
+  verification_method: VerificationMethod;
+  verification_token: string;
+  verification_status: VerificationStatus;
+  status: PlacementStatus | string;
+  created_at: string;
+}
+
+export interface Placement {
+  id: string;
+  property_id: string;
+  name: string;
+  format: AdFormat;
+  tag_key: string;
+  floor_cpm: number;
+  rev_share: number;
+  width?: number | null;
+  height?: number | null;
+  status: PlacementStatus;
+  created_at: string;
+}
+
+export interface Campaign {
+  id: string;
+  account_id: string;
+  name: string;
+  format: AdFormat;
+  pricing_model: PricingModel;
+  bid_amount: number;
+  budget_daily: number;
+  budget_total: number;
+  spent_total: number;
+  pacing: Pacing;
+  status: CampaignStatus;
+  targeting?: Targeting;
+  created_at: string;
+}
+
+export interface Targeting {
+  geoInclude?: string[];
+  geoExclude?: string[];
+  deviceTypes?: string[];
+  os?: string[];
+  browsers?: string[];
+  iabCategories?: string[];
+  dayparting?: number[];
+}
+
+export interface Creative {
+  id: string;
+  campaign_id: string;
+  type: CreativeType;
+  asset_url?: string | null;
+  landing_url: string;
+  title?: string | null;
+  description?: string | null;
+  cta?: string | null;
+  width?: number | null;
+  height?: number | null;
+  moderation_status: ModerationStatus;
+  malware_scan_status: MalwareScanStatus;
+  status: PlacementStatus;
+}
+
+export interface LedgerEntry {
+  id: string;
+  account_id: string;
+  entry_type: LedgerEntryType;
+  amount: number;
+  currency: string;
+  balance_after: number;
+  ts: string;
+}
+
+export interface Balance {
+  available: number;
+  held: number;
+  currency: string;
+}
+
+/* ---- API responses ------------------------------------------------------- */
+export interface DomainConnectResult {
+  supported: boolean;
+  method: 'domainconnect' | 'manual';
+  applyUrl?: string;
+  providerId?: string;
+  token: string;
+}
+
+export interface CreativeUploadResult {
+  assetUrl: string;
+  width?: number;
+  height?: number;
+  scan: 'clean' | 'flagged' | 'skipped';
+}
+
+export interface ReportRow {
+  dimension: string;
+  impressions: number;
+  clicks: number;
+  conversions?: number;
+  ctr: number;
+  ecpm: number;
+  revenue?: number;
+  spend?: number;
+}
