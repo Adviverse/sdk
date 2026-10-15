@@ -23,7 +23,11 @@ export type AdFormat =
   | 'interstitial'
   | 'in_page_push'
   | 'direct_link'
-  | 'video';
+  | 'video'
+  | 'audio'
+  | 'carousel'
+  | 'email'
+  | 'terminal';
 
 export type PricingModel = 'cpm' | 'cpc' | 'cpa' | 'cpi';
 export type Pacing = 'even' | 'asap';
@@ -37,7 +41,7 @@ export type CampaignStatus =
   | 'completed'
   | 'archived';
 
-export type CreativeType = 'image' | 'native' | 'popunder_url' | 'push' | 'html5' | 'video';
+export type CreativeType = 'image' | 'native' | 'popunder_url' | 'push' | 'html5' | 'video' | 'audio';
 export type ModerationStatus = 'pending' | 'approved' | 'rejected';
 export type MalwareScanStatus = 'pending' | 'clean' | 'flagged' | 'skipped';
 
@@ -134,6 +138,13 @@ export interface Creative {
   cta?: string | null;
   width?: number | null;
   height?: number | null;
+  /* VAST video fields (snake_case response columns). */
+  duration?: number | null;
+  skip_offset_sec?: number | null;
+  vpaid_url?: string | null;
+  /** Flat array of { width, height, static_url, static_mime, click_url }. */
+  companions?: Array<{ width: number; height: number; static_url: string; static_mime: string; click_url: string }>;
+  vast_tag_url?: string | null;
   moderation_status: ModerationStatus;
   malware_scan_status: MalwareScanStatus;
   status: PlacementStatus;

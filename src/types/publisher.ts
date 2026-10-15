@@ -32,6 +32,12 @@ export interface CreatePlacementRequest {
   houseShare?: number;
   houseBackfill?: boolean;
   floorFallback?: boolean;
+  /**
+   * Responsive / multi-size: one placement + one tag serves whatever creative
+   * size fits the slot's rendered container (width/height become optional).
+   * Banner format only.
+   */
+  responsive?: boolean;
 }
 
 /** Editable placement fields (propertyId/format/dimensions are fixed at creation). */
@@ -193,6 +199,8 @@ export interface DealClaimPreview {
 /** A publisher's consent configuration (CMP framework + snippet behavior). */
 export interface ConsentConfig {
   publisherId: string;
+  /** The property (domain) this config applies to; null = account-wide default. */
+  propertyId?: string | null;
   mode: 'tcf_v2' | 'gpp' | 'custom' | string;
   defaultConsent: boolean;
   /** Honor the GPC browser flag as an explicit opt-out. */
@@ -216,6 +224,8 @@ export interface ConsentConfig {
 }
 
 export interface SaveConsentConfigRequest {
+  /** Property (domain) to save this config for; omit for the account-wide default. */
+  propertyId?: string;
   mode: 'tcf_v2' | 'gpp' | 'custom' | string;
   defaultConsent: boolean;
   honorGpc?: boolean;

@@ -120,7 +120,8 @@ export interface SegmentCatalogEntry {
  * interest niche, optionally setting the revenue-share the contributor takes. */
 export interface ContributeSegmentRequest {
   audienceId: string;
-  taxonomyId: string;
+  /** Optional — the niche is auto-detected from the audience's members when omitted. */
+  taxonomyId?: string;
   revShare?: number;
 }
 

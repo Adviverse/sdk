@@ -47,6 +47,18 @@ export class PropertiesResource extends Resource {
   verify(id: string): Promise<Ok> {
     return this.c.request('POST', `/v1/publisher/properties/${encodeURIComponent(id)}/verify`);
   }
+  /** Set/clear the property's first-party ad-serving domain (anti-adblock). Pass
+   *  null/undefined to remove. Returns the CNAME target to point the domain at. */
+  setServingDomain(id: string, domain: string | null): Promise<{ serving_domain: string | null; cname_target: string; verified: boolean }> {
+    return this.c.request('POST', `/v1/publisher/properties/${encodeURIComponent(id)}/serving-domain`, { body: { domain } });
+  }
+  /** Verify the custom serving domain CNAMEs to our edge (proves control + routes). */
+  verifyServingDomain(id: string): Promise<{ verified: boolean; serving_domain: string; cname_target: string }> {
+    return this.c.request('POST', `/v1/publisher/properties/${encodeURIComponent(id)}/serving-domain/verify`);
+  }
+  removeServingDomain(id: string): Promise<{ serving_domain: string | null; verified: boolean }> {
+    return this.c.request('DELETE', `/v1/publisher/properties/${encodeURIComponent(id)}/serving-domain`);
+  }
   domainConnect(id: string): Promise<DomainConnectResult> {
     return this.c.request(
       'POST',
@@ -122,11 +134,19 @@ export class ConsentResource extends Resource {
   constructor(c: AdNetClient) {
     super(c);
   }
-  /** Get this publisher's consent config (defaults when none saved). */
-  getConfig(): Promise<ConsentConfig> {
-    return this.c.request('GET', '/v1/publisher/consent-config');
+  /**
+   * Get consent config. Consent is scoped per PROPERTY (domain) — pass a
+   * propertyId to read that property's config (falling back to the account-wide
+   * default). Omit it to read the account-wide default directly.
+   */
+  getConfig(propertyId?: string): Promise<ConsentConfig> {
+    const q = propertyId ? `?propertyId=${encodeURIComponent(propertyId)}` : '';
+    return this.c.request('GET', `/v1/publisher/consent-config${q}`);
   }
-  /** Save the CMP framework + default-consent + snippet behavior. */
+  /**
+   * Save the CMP framework + default-consent + snippet behavior for a property
+   * (set `propertyId` in the body). Omit `propertyId` to save the account default.
+   */
   saveConfig(body: SaveConsentConfigRequest): Promise<ConsentConfig> {
     return this.c.request('POST', '/v1/publisher/consent-config', { body });
   }

@@ -11,6 +11,11 @@
 export interface AdNetClientOptions {
   /** Base URL of the control-plane, e.g. `https://adviverse.com` (no trailing `/v1`). */
   baseUrl: string;
+  /**
+   * Ad-serving host (the engine), used by `terminal.serve()`. Defaults to
+   * `https://serve.adviverse.com`. Only override for self-hosted/staging engines.
+   */
+  servingBaseUrl?: string;
   /** Bearer session token. Optional; can be set later via {@link AdNetClient.setToken}. */
   token?: string;
   /**

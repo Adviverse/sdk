@@ -32,6 +32,13 @@ export * from './resources/account.js';
 export * from './resources/advertiser.js';
 export * from './resources/publisher.js';
 export * from './resources/admin.js';
+export * from './resources/marketplace.js';
+export * from './resources/conversions.js';
+export * from './resources/currencies.js';
+export * from './resources/dooh.js';
+export * from './resources/metaverse.js';
+export * from './resources/portal-templates.js';
+export * from './resources/rewards.js';
 export * from './client.js';
 
 import AdNetClient from './client.js';

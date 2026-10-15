@@ -13,6 +13,7 @@
 export * from './types/common.js';
 export * from './types/auth.js';
 export * from './types/campaigns.js';
+export * from './types/conversions.js';
 export * from './types/creatives.js';
 export * from './types/publisher.js';
 export * from './types/finance.js';

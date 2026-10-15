@@ -30,6 +30,8 @@ export interface MeResponse {
   adminRoles?: string[];
   twoFaEnabled?: boolean;
   emailVerified?: boolean;
+  /** false = SSO-only account (no email+password login). */
+  hasPassword?: boolean;
 }
 
 export interface TwoFaSetupResponse {
@@ -59,6 +61,8 @@ export interface WebhookEndpoint {
   url: string;
   events?: string[];
   secret?: string;
+  active?: boolean;
+  created_at?: string;
   [k: string]: unknown;
 }
 
@@ -67,18 +71,49 @@ export interface CreateWebhookRequest {
   events?: string[];
 }
 
+/** Partial update of a webhook endpoint (any subset). */
+export interface UpdateWebhookRequest {
+  url?: string;
+  events?: string[];
+  active?: boolean;
+}
+
+/** One logged delivery attempt for a webhook subscription. */
+export interface WebhookDelivery {
+  id: string;
+  event_type: string;
+  status_code?: number | null;
+  attempts: number;
+  delivered: boolean;
+  created_at: string;
+  next_retry_at?: string | null;
+}
+
+/** Result of a ping/redeliver call. */
+export interface WebhookDeliveryResult {
+  delivered: boolean;
+  statusCode: number;
+  deliveryId: string;
+}
+
 export interface ApiKey {
   id: string;
   name?: string;
   prefix?: string;
   scopes?: string[];
   created_at?: string;
+  /** ISO timestamp when the key expires; null/absent = never. */
+  expires_at?: string | null;
+  /** True when expires_at is in the past. */
+  expired?: boolean;
   [k: string]: unknown;
 }
 
 export interface CreateApiKeyRequest {
   name?: string;
   scopes?: string[];
+  /** Optional expiry in days (1..365). Omitted = never expires. */
+  expiresInDays?: number;
 }
 
 export interface OnboardingProfile {

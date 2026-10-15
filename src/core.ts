@@ -34,6 +34,12 @@ export interface RequestOptions {
   /** Parse the response as text instead of JSON (e.g. rendered HTML / app-ads.txt). */
   text?: boolean;
   /**
+   * Override the base URL for this one call. Used to reach the ad-serving host
+   * (e.g. https://serve.adviverse.com) for /terminal/serve, which lives on the
+   * engine rather than the control-plane API base.
+   */
+  baseUrl?: string;
+  /**
    * Safe-retry key for mutating calls — sent as `Idempotency-Key`. Reuse the
    * same value when retrying the SAME logical operation; the server replays the
    * original response instead of acting twice.

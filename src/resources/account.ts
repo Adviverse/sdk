@@ -25,6 +25,9 @@ import type {
   Referral,
   WebhookEndpoint,
   CreateWebhookRequest,
+  UpdateWebhookRequest,
+  WebhookDelivery,
+  WebhookDeliveryResult,
   ApiKey,
   CreateApiKeyRequest,
   OnboardingProfile,
@@ -48,6 +51,16 @@ export class AuthResource extends Resource {
   }
   resetPassword(token: string, password: string): Promise<Ok> {
     return this.c.request('POST', '/v1/auth/reset-password', { body: { token, password } });
+  }
+  /**
+   * Set or change the signed-in account's password. Omit `currentPassword` when
+   * the account is SSO-only (setting a password for the first time so email+password
+   * login also works); it's required when changing an existing password.
+   */
+  setPassword(newPassword: string, currentPassword?: string): Promise<{ ok: boolean; hadPassword: boolean }> {
+    return this.c.request('POST', '/v1/auth/password', {
+      body: { newPassword, ...(currentPassword ? { currentPassword } : {}) },
+    });
   }
   login(body: LoginRequest): Promise<LoginResponse> {
     return this.c.request('POST', '/v1/auth/login', { body });
@@ -121,6 +134,10 @@ export class ReportingResource extends Resource {
   publisherPlacements(query?: ReportQuery): Promise<PublisherPlacementRow[]> {
     return this.c.request('GET', '/v1/reporting/publisher/placements', { query });
   }
+  /** Anti-adblock: impressions recovered from adblock visitors (first-party serving). */
+  antiAdblock(query?: ReportQuery): Promise<{ summary: { impressions: number; recovered: number; recovered_pct: number }; series: unknown[] }> {
+    return this.c.request('GET', '/v1/reporting/publisher/anti-adblock', { query });
+  }
   advertiser(query?: ReportQuery): Promise<ReportRow[]> {
     return this.c.request('GET', '/v1/reporting/advertiser', { query });
   }
@@ -138,8 +155,18 @@ export class ReportingResource extends Resource {
   reach(query?: ReportQuery): Promise<unknown> {
     return this.c.request('GET', '/v1/reporting/reach', { query });
   }
-  /** OS / browser / deal breakdown (bdim=os|browser|deal) — dropped by the rollup. */
-  breakdown(query?: ReportQuery & { bdim?: 'os' | 'browser' | 'deal' | 'page' }): Promise<unknown> {
+  /**
+   * Breakdown over a dimension the hourly rollup drops
+   * (bdim=os|browser|deal|page|page_url|app|property). 'page' groups by site
+   * (host), 'page_url' by individual page (host+path), 'app' by in-app/in-game
+   * app id, 'property' by owning property (app/site). Rows carry impressions,
+   * clicks, ctr, revenue (publisher earnings or advertiser spend) and ecpm.
+   */
+  breakdown(
+    query?: ReportQuery & {
+      bdim?: 'os' | 'browser' | 'deal' | 'page' | 'page_url' | 'app' | 'property' | 'region' | 'make' | 'model' | 'sub1' | 'sub2' | 'sub3' | 'sub4' | 'sub5';
+    },
+  ): Promise<unknown> {
     return this.c.request('GET', '/v1/reporting/breakdown', { query });
   }
   /** Per-creative performance (CTR/CVR) + fatigue for the advertiser. */
@@ -213,6 +240,23 @@ export class ReportingResource extends Resource {
   /** Viewability metrics, grouped by placement or campaign. */
   viewability(query?: { groupBy?: 'placement' | 'campaign'; from?: string; to?: string }): Promise<ReportRow[]> {
     return this.c.request('GET', '/v1/reporting/viewability', { query });
+  }
+  /** Video completion: the funnel (starts → quartiles → completes) and completion
+   * rate / VTR, plus a per-placement (publisher) or per-campaign (advertiser)
+   * breakdown. Returns { funnel, breakdown }. */
+  video(query?: { from?: string; to?: string }): Promise<unknown> {
+    return this.c.request('GET', '/v1/reporting/video', { query });
+  }
+  /** Affiliate sub-id funnel: impressions → clicks → conversions per sub-id, with
+   * CTR / CVR / revenue / payout. `sub` picks which of sub1..sub5 to group by
+   * (default sub1). Conversions populate on advertiser scope only. */
+  affiliate(query?: { sub?: 'sub1' | 'sub2' | 'sub3' | 'sub4' | 'sub5'; from?: string; to?: string }): Promise<unknown> {
+    return this.c.request('GET', '/v1/reporting/affiliate', { query });
+  }
+  /** Per-card carousel click attribution: clicks per card of each carousel
+   * creative, with the card's title/price. Advertiser-scoped. */
+  carousel(query?: { from?: string; to?: string }): Promise<unknown> {
+    return this.c.request('GET', '/v1/reporting/carousel', { query });
   }
   /** List saved report configurations. */
   saved(): Promise<unknown[]> {
@@ -299,8 +343,28 @@ export class WebhooksResource extends Resource {
   create(body: CreateWebhookRequest): Promise<WebhookEndpoint> {
     return this.c.request('POST', '/v1/webhooks', { body });
   }
+  /** Update an endpoint's URL, subscribed events, and/or active (pause) flag. */
+  update(id: string, body: UpdateWebhookRequest): Promise<WebhookEndpoint> {
+    return this.c.request('PATCH', `/v1/webhooks/${encodeURIComponent(id)}`, { body });
+  }
   delete(id: string): Promise<Ok> {
     return this.c.request('DELETE', `/v1/webhooks/${encodeURIComponent(id)}`);
+  }
+  /** Roll the signing secret (old one stops verifying immediately). */
+  rotateSecret(id: string): Promise<WebhookEndpoint> {
+    return this.c.request('POST', `/v1/webhooks/${encodeURIComponent(id)}/rotate-secret`);
+  }
+  /** Fire a synthetic `ping` event to verify the endpoint. */
+  ping(id: string): Promise<WebhookDeliveryResult> {
+    return this.c.request('POST', `/v1/webhooks/${encodeURIComponent(id)}/ping`);
+  }
+  /** Recent delivery attempts for one subscription (newest first). */
+  deliveries(id: string, query?: { limit?: number }): Promise<WebhookDelivery[]> {
+    return this.c.request('GET', `/v1/webhooks/${encodeURIComponent(id)}/deliveries`, { query });
+  }
+  /** Manually re-send a past delivery's payload. */
+  redeliver(deliveryId: string): Promise<WebhookDeliveryResult> {
+    return this.c.request('POST', `/v1/webhooks/deliveries/${encodeURIComponent(deliveryId)}/redeliver`);
   }
 }
 
