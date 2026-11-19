@@ -2,7 +2,8 @@
 
 import { Resource } from '../core.js';
 import type { AdNetClient } from '../client.js';
-import type { Ok, Guide, UpsertGuideRequest, Post, UpsertPostRequest } from '../types.js';
+import type { Ok, Guide, UpsertGuideRequest, Post, UpsertPostRequest, TrustEvent } from '../types.js';
+import type { Property } from '../shared';
 
 /**
  * Admin operations. Requires an account with admin roles (or an API key with the
@@ -51,6 +52,18 @@ export class AdminResource extends Resource {
     return this.c.request('GET', '/v1/admin/audit');
   }
   /** Properties ranked by Made-For-Advertising risk score. */
+  /** Website/app properties with trust tier, lock, niches and promotion progress. */
+  trustProperties(query?: { q?: string; limit?: number }): Promise<(Property & { publisher_email: string })[]> {
+    return this.c.request('GET', '/v1/admin/properties/trust', { query });
+  }
+  /** Override a property's trust tier and/or lock it against automatic changes. */
+  setPropertyTrust(id: string, body: { tier?: 'trusted' | 'unverified'; locked: boolean; note?: string }): Promise<{ ok: boolean; trust_tier: string; trust_locked: boolean }> {
+    return this.c.request('POST', `/v1/admin/properties/${encodeURIComponent(id)}/trust`, { body });
+  }
+  /** The trust audit log (auto promotions/demotions, domain resets, overrides). */
+  trustEvents(query?: { propertyId?: string; limit?: number }): Promise<TrustEvent[]> {
+    return this.c.request('GET', '/v1/admin/trust-events', { query });
+  }
   mfaRanking(limit?: number): Promise<unknown[]> {
     return this.c.request('GET', '/v1/admin/mfa', { query: { limit } });
   }

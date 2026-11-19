@@ -58,6 +58,25 @@ export interface UpdatePlacementRequest {
   floorAuto?: boolean;
   /** Soft reserve the engine reads alongside the hard floorCpm. */
   floorSoft?: number;
+  /** Auto-ads tuning for a responsive banner placement (stored at settings.auto_ads;
+   * omitted keys get defaults). null clears it. Applied to live pages within ~5 min. */
+  autoAds?: Partial<AutoAdsSettings> | null;
+}
+
+/** settings.auto_ads — read by the SDK for `data-auto-ads` / adviverse.autoAds(); wins over data-max. */
+export interface AutoAdsSettings {
+  /** false = never insert auto ads (default true). */
+  enabled: boolean;
+  /** Max slots per page, 1-10 (default 3). */
+  max: number;
+  /** Paragraphs between ads, 2-12 (default 4). */
+  every: number;
+  /** Only paragraphs longer than this many characters count, 0-2000 (default 60). */
+  min_paragraph_chars: number;
+  /** Paths where auto ads never run; `*` is a wildcard, e.g. "/checkout*". */
+  exclude_paths: string[];
+  /** CSS selectors for the content container (default: article, main, [role=main], …). */
+  selectors?: string[];
 }
 
 /** One placement provisioned as part of a combo / layout preset. */
@@ -142,9 +161,30 @@ export interface PublisherPlacementRow {
   requests: number;
   filled: number;
   fill_rate: number;
+  /** Fills from paid demand (excludes house/self-promo), and its % of requests. */
+  paid_filled: number;
+  paid_fill_rate: number;
   measurable: number;
   viewable: number;
   viewable_rate: number;
+  /** Viewable impressions that reported layout shift (browsers with the API). */
+  cls_measured: number;
+  /** Mean layout shift this slot caused per measured impression. */
+  cls_avg: number;
+  /** Share (0..1) of measured impressions with CLS > 0.1. */
+  cls_poor_rate: number;
+}
+
+/** Publisher fill summary (GET /v1/reporting/publisher/fill). Rates are %. */
+export interface PublisherFillReport {
+  requests: number;
+  filled: number;
+  fill_rate: number;
+  /** Fills from paid demand (excludes house/self-promo). */
+  paid_filled: number;
+  paid_fill_rate: number;
+  /** No-fill counts by reason. */
+  nofill: Record<string, number>;
 }
 
 export interface Deal {
@@ -271,4 +311,33 @@ export interface CreateAppRequest {
   appStoreId?: string;
   category?: number;
   ctvMeta?: Record<string, unknown>;
+}
+
+/** One site niche (IAB Content Taxonomy v1 tier-1) — GET /v1/site-niches. */
+export interface SiteNiche {
+  id: number;
+  code: string;
+  name: string;
+}
+
+/** Result of POST /v1/publisher/properties/{id}/classify. */
+export interface NicheClassification {
+  category: number | null;
+  categories: { id: number; score: number }[];
+  error: string | null;
+  pages: number;
+}
+
+/** A row of the trust audit log — GET /v1/admin/trust-events. */
+export interface TrustEvent {
+  id: string;
+  property_id: string;
+  domain: string;
+  name: string | null;
+  from_tier: 'unverified' | 'trusted';
+  to_tier: 'unverified' | 'trusted';
+  reason: 'auto_promote' | 'auto_demote_ivt' | 'domain_changed' | 'admin_override';
+  actor_id: string | null;
+  metrics: Record<string, unknown>;
+  created_at: string;
 }

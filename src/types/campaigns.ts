@@ -35,6 +35,10 @@ export interface CreateCampaignRequest {
   bidModifiers?: Record<string, unknown>;
   conversion?: Record<string, unknown>;
   houseAd?: boolean;
+  /** Default true: a house/backfill-tier campaign also runs on every placement this account publishes, even if absent from its placement whitelist. */
+  autoOwnPlacements?: boolean;
+  /** Default true: smart routing weights delivery toward sites where similar ads perform well; false = pure targeting. */
+  networkExpansion?: boolean;
   deliveryGoal?: number;
   goalType?: 'impressions' | 'clicks';
   targetCpa?: number;

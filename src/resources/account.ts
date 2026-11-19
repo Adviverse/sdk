@@ -18,11 +18,13 @@ import type {
   TaxFormRequest,
   ReportQuery,
   PublisherPlacementRow,
+  PublisherFillReport,
   Deal,
   CreateDealRequest,
   AdvertiserLookup,
   DealClaimPreview,
   Referral,
+  AffiliateOverview,
   WebhookEndpoint,
   CreateWebhookRequest,
   UpdateWebhookRequest,
@@ -126,11 +128,12 @@ export class ReportingResource extends Resource {
   publisher(query?: ReportQuery): Promise<ReportRow[]> {
     return this.c.request('GET', '/v1/reporting/publisher', { query });
   }
-  publisherFill(query?: ReportQuery): Promise<ReportRow[]> {
+  /** Fill summary: requests, fill_rate, paid_fill_rate (house excluded), no-fill reasons. */
+  publisherFill(query?: ReportQuery): Promise<PublisherFillReport> {
     return this.c.request('GET', '/v1/reporting/publisher/fill', { query });
   }
   /** Per-placement rollup (impressions, clicks, CTR, revenue, RPM, eCPM, fill
-   * rate, viewable rate) for the authed publisher. */
+   * rate, paid fill rate, viewable rate, slot CLS) for the authed publisher. */
   publisherPlacements(query?: ReportQuery): Promise<PublisherPlacementRow[]> {
     return this.c.request('GET', '/v1/reporting/publisher/placements', { query });
   }
@@ -328,6 +331,14 @@ export class ReferralsResource extends Resource {
   list(): Promise<Referral[]> {
     return this.c.request('GET', '/v1/referrals');
   }
+  /** Refer & earn: partner status, `?via=` link, clicks, sign-ups and commissions. */
+  affiliate(): Promise<AffiliateOverview> {
+    return this.c.request('GET', '/v1/referrals/affiliate');
+  }
+  /** Join Refer & earn (idempotent); returns the new overview. */
+  joinAffiliate(): Promise<AffiliateOverview> {
+    return this.c.request('POST', '/v1/referrals/affiliate/join');
+  }
 }
 
 export class WebhooksResource extends Resource {
@@ -353,6 +364,10 @@ export class WebhooksResource extends Resource {
   /** Roll the signing secret (old one stops verifying immediately). */
   rotateSecret(id: string): Promise<WebhookEndpoint> {
     return this.c.request('POST', `/v1/webhooks/${encodeURIComponent(id)}/rotate-secret`);
+  }
+  /** Fetch the signing secret (list()/update() only return `has_secret` + `secret_hint`). */
+  revealSecret(id: string): Promise<{ secret: string }> {
+    return this.c.request('POST', `/v1/webhooks/${encodeURIComponent(id)}/secret/reveal`);
   }
   /** Fire a synthetic `ping` event to verify the endpoint. */
   ping(id: string): Promise<WebhookDeliveryResult> {

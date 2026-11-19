@@ -24,6 +24,8 @@ import type {
   FloorRecommendationResult,
   PublisherNoFillResult,
   PublisherDealsResult,
+  SiteNiche,
+  NicheClassification,
 } from '../types.js';
 
 export class PropertiesResource extends Resource {
@@ -37,15 +39,29 @@ export class PropertiesResource extends Resource {
     return this.c.request('POST', '/v1/publisher/properties', { body, idempotencyKey });
   }
   /** Update a property's editable fields: display name, domain, category, and
-   *  verification method. Changing the domain resets verification. */
+   *  verification method. Changing the domain resets verification. `category`
+   *  (a site-niche id) is kept as the publisher's manual choice; 0 hands it back
+   *  to auto-detection. */
   update(
     id: string,
-    body: { name?: string; domain?: string; category?: number; verificationMethod?: string },
+    body: { name?: string; domain?: string; category?: number; verificationMethod?: string; crossFill?: boolean },
   ): Promise<Property> {
     return this.c.request('PATCH', `/v1/publisher/properties/${encodeURIComponent(id)}`, { body });
   }
+  /** Re-detect a website's niche from its pages (updates `category` only when it is auto). */
+  classify(id: string): Promise<NicheClassification> {
+    return this.c.request('POST', `/v1/publisher/properties/${encodeURIComponent(id)}/classify`);
+  }
+  /** The site-niche taxonomy: ids for property `category` and campaign `propertyCategoryInclude/Exclude`. Public. */
+  niches(): Promise<SiteNiche[]> {
+    return this.c.request('GET', '/v1/site-niches');
+  }
   verify(id: string): Promise<Ok> {
     return this.c.request('POST', `/v1/publisher/properties/${encodeURIComponent(id)}/verify`);
+  }
+  /** The ads.txt line(s) to publish at https://<domain>/ads.txt (plain text). */
+  adsTxt(id: string): Promise<string> {
+    return this.c.request('GET', `/v1/publisher/properties/${encodeURIComponent(id)}/ads.txt`, { text: true });
   }
   /** Set/clear the property's first-party ad-serving domain (anti-adblock). Pass
    *  null/undefined to remove. Returns the CNAME target to point the domain at. */
@@ -87,7 +103,8 @@ export class PlacementsResource extends Resource {
   update(id: string, body: UpdatePlacementRequest): Promise<Placement> {
     return this.c.request('PATCH', `/v1/publisher/placements/${encodeURIComponent(id)}`, { body });
   }
-  tag(id: string): Promise<{ tag: string; [k: string]: unknown }> {
+  /** Install code; responsive banners also carry `autoAdsScript` (site-wide auto-ads tag). */
+  tag(id: string): Promise<{ tag: string; autoAdsScript?: string; [k: string]: unknown }> {
     return this.c.request('GET', `/v1/publisher/placements/${encodeURIComponent(id)}/tag`);
   }
   /**

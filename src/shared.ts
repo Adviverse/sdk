@@ -84,6 +84,29 @@ export interface Property {
   verification_token: string;
   verification_status: VerificationStatus;
   status: PlacementStatus | string;
+  /** Site-niche id (see `properties.niches()`); null when unknown. */
+  category?: number | null;
+  /** 'manual' = set by the publisher (never auto-overwritten); 'auto' = detected. */
+  category_source?: 'auto' | 'manual';
+  /** Top-3 detected niches, score = share of the classifier score (0-1). */
+  categories?: { id: number; score: number }[];
+  classified_at?: string | null;
+  classify_error?: string | null;
+  /** 'unverified' inventory gets CPA-only demand until promoted to 'trusted'. */
+  trust_tier?: 'unverified' | 'trusted';
+  /** An admin pinned the trust tier; automatic promotion/demotion is off. */
+  trust_locked?: boolean;
+  verified_at?: string | null;
+  /** Progress toward automatic promotion (null for CLI properties / stats unavailable). */
+  trust_progress?: {
+    clean_impressions: number;
+    impressions_needed: number;
+    days_verified: number;
+    days_needed: number;
+    ivt_share: number;
+    max_ivt_share: number;
+    window_days: number;
+  } | null;
   created_at: string;
 }
 
@@ -98,6 +121,8 @@ export interface Placement {
   width?: number | null;
   height?: number | null;
   status: PlacementStatus;
+  /** True when signed-tag enforcement is on. The secret itself is only returned by `rotateSigningSecret()`. */
+  has_signing_secret?: boolean;
   created_at: string;
 }
 
@@ -113,6 +138,9 @@ export interface Campaign {
   spent_total: number;
   pacing: Pacing;
   status: CampaignStatus;
+  /** Routing switches (default true) — see CreateCampaignRequest. */
+  auto_own_placements?: boolean;
+  network_expansion?: boolean;
   targeting?: Targeting;
   created_at: string;
 }
