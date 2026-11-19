@@ -58,6 +58,8 @@ export interface UpdatePlacementRequest {
   floorAuto?: boolean;
   /** Soft reserve the engine reads alongside the hard floorCpm. */
   floorSoft?: number;
+  /** Per-visitor cap { impressions, windowSeconds }; {} or null removes it. */
+  frequencyCap?: { impressions?: number; windowSeconds?: number } | null;
   /** Auto-ads tuning for a responsive banner placement (stored at settings.auto_ads;
    * omitted keys get defaults). null clears it. Applied to live pages within ~5 min. */
   autoAds?: Partial<AutoAdsSettings> | null;
@@ -261,6 +263,8 @@ export interface ConsentConfig {
   tcfPurpose?: number;
   /** Our IAB vendor id to require in the TCF string (optional). */
   tcfVendorId?: number | null;
+  /** Ads always load: unanswered/rejected visitors get contextual ads (no identifier); personalized still waits for consent. */
+  contextualWithoutConsent?: boolean;
 }
 
 export interface SaveConsentConfigRequest {
@@ -278,6 +282,8 @@ export interface SaveConsentConfigRequest {
   consentGrantValue?: string;
   tcfPurpose?: number;
   tcfVendorId?: number;
+  /** Ads always load: unanswered/rejected visitors get contextual ads (no identifier). */
+  contextualWithoutConsent?: boolean;
 }
 
 /** A publisher's public sellers.json listing preference. When `sellerPublic` is
