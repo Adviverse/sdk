@@ -265,6 +265,8 @@ export interface ConsentConfig {
   tcfVendorId?: number | null;
   /** Ads always load: unanswered/rejected visitors get contextual ads (no identifier); personalized still waits for consent. */
   contextualWithoutConsent?: boolean;
+  /** Enhanced frequency capping: outside the EEA/UK (no GPC/opt-out), contextual caps add browser signals + an SDK canvas hash. Off = IP + UA only, stricter traffic rules. */
+  enhancedCapping?: boolean;
 }
 
 export interface SaveConsentConfigRequest {
@@ -284,6 +286,8 @@ export interface SaveConsentConfigRequest {
   tcfVendorId?: number;
   /** Ads always load: unanswered/rejected visitors get contextual ads (no identifier). */
   contextualWithoutConsent?: boolean;
+  /** Enhanced frequency capping outside the EEA/UK (declare it in your privacy policy). */
+  enhancedCapping?: boolean;
 }
 
 /** A publisher's public sellers.json listing preference. When `sellerPublic` is
