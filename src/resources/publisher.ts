@@ -1,7 +1,7 @@
 /** Publisher-side resource groups: properties, placements, consent, terminal
  * ad-integrity, apps, and edge-region discovery. */
 
-import type { Property, Placement, DomainConnectResult } from '../shared';
+import type { Property, Placement, DomainConnectResult, PropertyVerifyResult } from '../shared';
 import { Resource } from '../core.js';
 import type { AdNetClient } from '../client.js';
 import type {
@@ -35,16 +35,23 @@ export class PropertiesResource extends Resource {
   list(page?: Pagination): Promise<Property[]> {
     return this.c.request('GET', '/v1/publisher/properties', { query: page });
   }
+  get(id: string): Promise<Property> {
+    return this.c.request('GET', `/v1/publisher/properties/${encodeURIComponent(id)}`);
+  }
   create(body: CreatePropertyRequest, idempotencyKey?: string): Promise<Property> {
     return this.c.request('POST', '/v1/publisher/properties', { body, idempotencyKey });
   }
   /** Update a property's editable fields: display name, domain, category, and
    *  verification method. Changing the domain resets verification. `category`
    *  (a site-niche id) is kept as the publisher's manual choice; 0 hands it back
-   *  to auto-detection. */
+   *  to auto-detection. `contextualWithoutConsent` / `enhancedCapping` write this
+   *  property's consent config (same as consent.saveConfig with its propertyId). */
   update(
     id: string,
-    body: { name?: string; domain?: string; category?: number; verificationMethod?: string; crossFill?: boolean },
+    body: {
+      name?: string; domain?: string; category?: number; verificationMethod?: string; crossFill?: boolean;
+      contextualWithoutConsent?: boolean; enhancedCapping?: boolean;
+    },
   ): Promise<Property> {
     return this.c.request('PATCH', `/v1/publisher/properties/${encodeURIComponent(id)}`, { body });
   }
@@ -56,7 +63,7 @@ export class PropertiesResource extends Resource {
   niches(): Promise<SiteNiche[]> {
     return this.c.request('GET', '/v1/site-niches');
   }
-  verify(id: string): Promise<Ok> {
+  verify(id: string): Promise<PropertyVerifyResult> {
     return this.c.request('POST', `/v1/publisher/properties/${encodeURIComponent(id)}/verify`);
   }
   /** The ads.txt line(s) to publish at https://<domain>/ads.txt (plain text). */

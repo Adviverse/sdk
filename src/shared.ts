@@ -107,7 +107,32 @@ export interface Property {
     max_ivt_share: number;
     window_days: number;
   } | null;
+  /** Ads before consent (resolved: this property's consent config, else the account default). */
+  contextual_without_consent?: boolean;
+  /** Enhanced frequency capping (resolved like contextual_without_consent). */
+  enhanced_capping?: boolean;
   created_at: string;
+}
+
+/** Result of POST /v1/publisher/properties/{id}/verify. On failure, `error` + `message` say why and `check` shows what was fetched. */
+export interface PropertyVerifyResult {
+  verified: boolean;
+  token: string;
+  method: string | null;
+  error: 'dns_lookup_failed' | 'token_not_found' | 'http_error' | 'fetch_failed' | null;
+  message: string | null;
+  check: {
+    method: string | null;
+    /** URL fetched (file/meta) or DNS name queried (dns). */
+    target: string;
+    status?: number;
+    finalUrl?: string;
+    age?: string | null;
+    /** cf-cache-status (or x-cache) header. */
+    cacheStatus?: string | null;
+    bodyBytes?: number;
+    records?: string[];
+  };
 }
 
 export interface Placement {
