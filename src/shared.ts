@@ -119,7 +119,11 @@ export interface PropertyVerifyResult {
   verified: boolean;
   token: string;
   method: string | null;
-  error: 'dns_lookup_failed' | 'token_not_found' | 'http_error' | 'fetch_failed' | null;
+  error:
+    | 'dns_lookup_failed' | 'token_not_found' | 'http_error' | 'fetch_failed'
+    // app verify (POST /v1/publisher/apps/{id}/verify) only:
+    | 'no_developer_property' | 'developer_property_unverified' | 'app_ads_txt_missing_line' | 'store_listing_not_found'
+    | null;
   message: string | null;
   check: {
     method: string | null;

@@ -140,6 +140,34 @@ export interface CreateApiKeyRequest {
   expiresInDays?: number;
 }
 
+/** POST /v1/auth/device/code body (RFC 8628 device login). */
+export interface DeviceCodeRequest {
+  /** Default ['read','write']; only read/write are allowed. */
+  scopes?: string[];
+  /** Lifetime of the issued key, default 90, max 365. */
+  expires_in_days?: number;
+  /** Shown on the approval page and in the key name. */
+  client_name?: string;
+}
+
+export interface DeviceCodeResponse {
+  device_code: string;
+  user_code: string;
+  verification_uri: string;
+  verification_uri_complete: string;
+  expires_in: number;
+  interval: number;
+}
+
+/** Issued once the user approves. Until then deviceToken() throws AdNetApiError (400) whose
+ * body.error is authorization_pending | slow_down | access_denied | expired_token. */
+export interface DeviceTokenResponse {
+  api_key: string;
+  key_id: string;
+  scopes: string[];
+  expires_at: string | null;
+}
+
 export interface OnboardingProfile {
   goal?: string;
   name?: string;

@@ -15,8 +15,11 @@ export interface CreatePropertyRequest {
   name?: string;
 }
 
+/** Send exactly one of `propertyId` / `appId` (an app id from `apps.list()` is a property id). */
 export interface CreatePlacementRequest {
-  propertyId: string;
+  propertyId?: string;
+  /** Alias of propertyId for mobile/CTV apps; apps only accept app formats (no popunder/social_bar/in_page_push). */
+  appId?: string;
   name: string;
   format: Placement['format'];
   width?: number;
@@ -321,6 +324,53 @@ export interface CreateAppRequest {
   appStoreId?: string;
   category?: number;
   ctvMeta?: Record<string, unknown>;
+  /** One of your website properties; its /app-ads.txt verifies the app. */
+  developerPropertyId?: string;
+}
+
+/** One app-ads.txt authorized-seller entry on an app. */
+export interface AppAdsTxtEntry {
+  domain: string;
+  sellerId: string;
+  relationship?: 'DIRECT' | 'RESELLER';
+  certId?: string;
+}
+
+export interface UpdateAppRequest {
+  appAdsTxt?: AppAdsTxtEntry[];
+  skadnetworkIds?: string[];
+  ctvMeta?: Record<string, unknown>;
+  storeUrl?: string;
+  platform?: string;
+  /** One of your website properties; null unlinks it. */
+  developerPropertyId?: string | null;
+}
+
+/** A mobile-app / CTV app: a `properties` row of kind mobile_app | ctv (all columns returned). */
+export interface App {
+  id: string;
+  publisher_id: string;
+  kind: 'mobile_app' | 'ctv';
+  name: string | null;
+  /** Holds the bundle id for apps. */
+  domain: string;
+  bundle_id: string | null;
+  store_url: string | null;
+  platform: string | null;
+  app_store_id: string | null;
+  category: number | null;
+  app_ads_txt: AppAdsTxtEntry[];
+  skadnetwork_ids: string[];
+  ctv_meta: Record<string, unknown>;
+  developer_property_id: string | null;
+  verification_method: string | null;
+  verification_token: string;
+  verification_status: 'unverified' | 'pending' | 'verified';
+  status: 'pending' | 'approved' | 'rejected' | string;
+  verified_at?: string | null;
+  created_at: string;
+  updated_at?: string;
+  [k: string]: unknown;
 }
 
 /** One site niche (IAB Content Taxonomy v1 tier-1) — GET /v1/site-niches. */

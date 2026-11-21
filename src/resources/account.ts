@@ -33,6 +33,9 @@ import type {
   ApiKey,
   CreateApiKeyRequest,
   OnboardingProfile,
+  DeviceCodeRequest,
+  DeviceCodeResponse,
+  DeviceTokenResponse,
 } from '../types.js';
 
 export class AuthResource extends Resource {
@@ -63,6 +66,14 @@ export class AuthResource extends Resource {
     return this.c.request('POST', '/v1/auth/password', {
       body: { newPassword, ...(currentPassword ? { currentPassword } : {}) },
     });
+  }
+  /** Start an RFC 8628 device login: show `user_code` / `verification_uri_complete`, then poll deviceToken(). */
+  deviceCode(body: DeviceCodeRequest = {}): Promise<DeviceCodeResponse> {
+    return this.c.request('POST', '/v1/auth/device/code', { body });
+  }
+  /** Poll every `interval` s. Throws AdNetApiError 400 with body.error authorization_pending | slow_down | access_denied | expired_token until approved. */
+  deviceToken(deviceCode: string): Promise<DeviceTokenResponse> {
+    return this.c.request('POST', '/v1/auth/device/token', { body: { device_code: deviceCode } });
   }
   login(body: LoginRequest): Promise<LoginResponse> {
     return this.c.request('POST', '/v1/auth/login', { body });
@@ -395,6 +406,10 @@ export class KeysResource extends Resource {
   }
   delete(id: string): Promise<Ok> {
     return this.c.request('DELETE', `/v1/keys/${encodeURIComponent(id)}`);
+  }
+  /** Revoke the API key this client is using (logout). 400 when authenticated by session. */
+  revokeCurrent(): Promise<{ revoked: true }> {
+    return this.c.request('DELETE', '/v1/keys/current');
   }
 }
 

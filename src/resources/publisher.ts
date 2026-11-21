@@ -16,6 +16,8 @@ import type {
   SellerListing,
   SaveSellerListingRequest,
   CreateAppRequest,
+  UpdateAppRequest,
+  App,
   ComboPreset,
   CreateComboRequest,
   ComboResult,
@@ -226,17 +228,25 @@ export class IntegrityResource extends Resource {
 /** Publisher mobile / CTV apps. */
 export class AppsResource extends Resource {
   constructor(c: AdNetClient) { super(c); }
-  list(): Promise<unknown[]> {
+  list(): Promise<App[]> {
     return this.c.request('GET', '/v1/publisher/apps');
   }
-  get(id: string): Promise<unknown> {
+  get(id: string): Promise<App> {
     return this.c.request('GET', `/v1/publisher/apps/${encodeURIComponent(id)}`);
   }
-  create(body: CreateAppRequest): Promise<unknown> {
+  create(body: CreateAppRequest): Promise<App> {
     return this.c.request('POST', '/v1/publisher/apps', { body });
   }
-  update(id: string, body: Record<string, unknown>): Promise<unknown> {
+  update(id: string, body: UpdateAppRequest): Promise<App> {
     return this.c.request('PATCH', `/v1/publisher/apps/${encodeURIComponent(id)}`, { body });
+  }
+  /** Soft-deletes the app and its placements. */
+  delete(id: string): Promise<Ok> {
+    return this.c.request('DELETE', `/v1/publisher/apps/${encodeURIComponent(id)}`);
+  }
+  /** Verify via app-ads.txt on the linked developer site (default), or also the store listing. */
+  verify(id: string, method?: 'developer_site' | 'store_listing'): Promise<PropertyVerifyResult> {
+    return this.c.request('POST', `/v1/publisher/apps/${encodeURIComponent(id)}/verify`, { body: method ? { method } : {} });
   }
   /** The generated app-ads.txt content (plain text). */
   appAdsTxt(id: string): Promise<string> {
