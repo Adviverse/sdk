@@ -36,6 +36,8 @@ import type {
   DeviceCodeRequest,
   DeviceCodeResponse,
   DeviceTokenResponse,
+  AgentSignupRequest,
+  AgentSignupResponse,
 } from '../types.js';
 
 export class AuthResource extends Resource {
@@ -66,6 +68,10 @@ export class AuthResource extends Resource {
     return this.c.request('POST', '/v1/auth/password', {
       body: { newPassword, ...(currentPassword ? { currentPassword } : {}) },
     });
+  }
+  /** Headless signup for agents: no captcha, browser or password; the response carries an API key. Needs no auth. */
+  agentSignup(body: AgentSignupRequest): Promise<AgentSignupResponse> {
+    return this.c.request('POST', '/v1/auth/agent-signup', { body });
   }
   /** Start an RFC 8628 device login: show `user_code` / `verification_uri_complete`, then poll deviceToken(). */
   deviceCode(body: DeviceCodeRequest = {}): Promise<DeviceCodeResponse> {

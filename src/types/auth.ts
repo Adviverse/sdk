@@ -140,6 +140,26 @@ export interface CreateApiKeyRequest {
   expiresInDays?: number;
 }
 
+/** POST /v1/auth/agent-signup body: headless signup, no captcha/browser/password. */
+export interface AgentSignupRequest {
+  email: string;
+  type?: 'advertiser' | 'publisher';
+  companyName?: string;
+  country?: string;
+  referredByCode?: string;
+  /** Default ['read','write']. */
+  scopes?: ('read' | 'write')[];
+  /** Default 90, max 365. */
+  expiresInDays?: number;
+}
+
+export interface AgentSignupResponse {
+  account: { id: string; type: string; email: string; status: string; [k: string]: unknown };
+  /** `key` is the full API key, returned once. */
+  apiKey: { id: string | null; key: string; prefix: string; scopes: string[]; expiresAt: string | null };
+  next?: string;
+}
+
 /** POST /v1/auth/device/code body (RFC 8628 device login). */
 export interface DeviceCodeRequest {
   /** Default ['read','write']; only read/write are allowed. */
