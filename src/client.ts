@@ -57,6 +57,9 @@ import { DoohResource } from './resources/dooh.js';
 import { MetaverseResource } from './resources/metaverse.js';
 import { PortalTemplatesResource } from './resources/portal-templates.js';
 import { RewardsResource } from './resources/rewards.js';
+import { DspPartnersResource } from './resources/dsp-partners.js';
+import { CpaGoalsResource } from './resources/cpa-goals.js';
+import { BuyingResource } from './resources/buying.js';
 
 export class AdNetClient {
   private readonly baseUrl: string;
@@ -116,6 +119,10 @@ export class AdNetClient {
   readonly metaverse: MetaverseResource;
   readonly portalTemplates: PortalTemplatesResource;
   readonly rewards: RewardsResource;
+  readonly dspPartners: DspPartnersResource;
+  readonly cpaGoals: CpaGoalsResource;
+  /** Bid suggestion + per-placement performance (allow/block, custom bids). */
+  readonly buying: BuyingResource;
 
   constructor(opts: AdNetClientOptions) {
     if (!opts?.baseUrl) throw new Error('AdNetClient: baseUrl is required');
@@ -178,6 +185,9 @@ export class AdNetClient {
     this.metaverse = new MetaverseResource(this);
     this.portalTemplates = new PortalTemplatesResource(this);
     this.rewards = new RewardsResource(this);
+    this.dspPartners = new DspPartnersResource(this);
+    this.cpaGoals = new CpaGoalsResource(this);
+    this.buying = new BuyingResource(this);
   }
 
   /** Sets (or clears) the bearer session token used for subsequent requests. */

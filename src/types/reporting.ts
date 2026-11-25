@@ -7,6 +7,17 @@ export interface ReportQuery {
   from?: string;
   to?: string;
   groupBy?: string;
+  /**
+   * Combinable filters on publisher stats / placements / breakdown reports:
+   * comma-separated lists, AND across fields, OR within one (max 20 values each).
+   */
+  country?: string;
+  device?: string;
+  format?: string;
+  placement?: string;
+  property?: string;
+  os?: string;
+  browser?: string;
   [k: string]: string | number | boolean | undefined;
 }
 

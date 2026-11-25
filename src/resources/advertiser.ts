@@ -100,7 +100,7 @@ export class CampaignsResource extends Resource {
       body: { status },
     });
   }
-  reachEstimate(body: unknown): Promise<{ reach: number; [k: string]: unknown }> {
+  reachEstimate(body: unknown): Promise<{ estimatedDailyImpressions: number; matchingPlacements?: number | null; appliedFilters?: string[]; note?: string }> {
     return this.c.request('POST', '/v1/advertiser/reach-estimate', { body });
   }
   getConversionConfig(id: string): Promise<unknown> {
@@ -515,7 +515,7 @@ export class CapiResource extends Resource {
 export class TrackResource extends Resource {
   constructor(c: AdNetClient) { super(c); }
   /** Record a conversion by click id (advertiser postback / S2S). */
-  conversion(body: { clickId?: string; click_id?: string; value?: number; postbackId?: string; postback_id?: string }): Promise<unknown> {
+  conversion(body: { clickId?: string; click_id?: string; value?: number; postbackId?: string; postback_id?: string; orderId?: string; orderValue?: number; payout?: number; revenue?: number }): Promise<unknown> {
     return this.c.request('POST', '/v1/track/conversion', { body });
   }
   /** Ingest a pixel event server-side (same payload the pixel.js library sends). */

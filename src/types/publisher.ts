@@ -30,6 +30,8 @@ export interface CreatePlacementRequest {
   passbackUrl?: string;
   frequencyCap?: Record<string, unknown>;
   settings?: Record<string, unknown>;
+  /** Validated per-format render settings, merged into settings (see PlacementRenderSettings). */
+  render?: PlacementRenderSettings;
   /** Personal Network: serve only the owner's house ads from this placement. */
   houseOnly?: boolean;
   houseShare?: number;
@@ -41,7 +43,15 @@ export interface CreatePlacementRequest {
    * Banner format only.
    */
   responsive?: boolean;
+  /**
+   * Smartlink traffic source (direct_link only) → settings.traffic_type. A
+   * direct_link sent without propertyId/appId goes under the account's
+   * auto-provisioned Smartlink property (no website needed).
+   */
+  trafficType?: SmartlinkTrafficType;
 }
+
+export type SmartlinkTrafficType = 'social' | 'website' | 'apk' | 'messenger' | 'mixed';
 
 /** Editable placement fields (propertyId/format/dimensions are fixed at creation). */
 export interface UpdatePlacementRequest {
@@ -71,6 +81,44 @@ export interface UpdatePlacementRequest {
   autoAds?: Partial<AutoAdsSettings> | null;
   /** true: when no paid ad fills, leave the slot empty instead of an Adviverse promo ad (settings.no_backfill). */
   noBackfill?: boolean;
+  /** Per-format render settings merged into settings (omitted keys are kept). */
+  render?: PlacementRenderSettings;
+}
+
+/**
+ * Render settings by format (400 on a key the format does not take; numbers clamped):
+ * social_bar: skin, position · in_page_push: position (corners) ·
+ * interstitial: template, close_delay_sec, cover, freq_hours, per_session ·
+ * popunder: freq_hours, per_session · native: native.
+ */
+export interface PlacementRenderSettings {
+  /** Social bar skin (default bar). */
+  skin?: 'bar' | 'in_page_push' | 'icon_notification' | 'custom_widget' | 'interstitial';
+  /** Social bar: any; in-page push: corners only. */
+  position?: 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  /** Interstitial layout (default card). */
+  template?: 'card' | 'fullscreen' | 'split';
+  /** Interstitial seconds before the close button works, 0-15 (default 5). */
+  close_delay_sec?: number;
+  /** Interstitial size as % of the screen, 45-100. */
+  cover?: number;
+  /** Interstitial/popunder: show at most once per N hours per visitor (0 = no cap); also sets the engine frequencyCap. */
+  freq_hours?: number;
+  /** Interstitial/popunder: show at most once per browser session. */
+  per_session?: boolean;
+  native?: {
+    /** Grid of rows × cols ads, 1-4 each (default 1×1). */
+    rows?: number;
+    cols?: number;
+    /** Hex colors (#rgb / #rrggbb). */
+    title_color?: string;
+    text_color?: string;
+    bg_color?: string;
+    /** Title size in px, 11-20. */
+    font_size?: number;
+    font_family?: 'inherit' | 'system' | 'serif';
+    image_position?: 'top' | 'left';
+  };
 }
 
 /** settings.auto_ads — read by the SDK for `data-auto-ads` / adviverse.autoAds(); wins over data-max. */

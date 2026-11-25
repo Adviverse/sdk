@@ -38,7 +38,10 @@ export * from './resources/currencies.js';
 export * from './resources/dooh.js';
 export * from './resources/metaverse.js';
 export * from './resources/portal-templates.js';
+export * from './resources/dsp-partners.js';
 export * from './resources/rewards.js';
+export * from './resources/cpa-goals.js';
+export * from './resources/buying.js';
 export * from './client.js';
 
 import AdNetClient from './client.js';

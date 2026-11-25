@@ -29,6 +29,16 @@ export interface PayoutRequest {
   method: PayoutMethod;
   /** ISO 4217 code, or a tenant's own platform-token code (see {@link DepositRequest.currency}). */
   currency?: string;
+  /** Method-specific destination: `{ email }` for paypal/paxum, `{ address, currency, network, memo? }` for crypto, bank fields for wire. */
+  destination?: Record<string, unknown>;
+}
+
+/** Rails usable in this environment (GET /v1/finance/methods). */
+export interface FinanceMethods {
+  deposit: string[];
+  payout: string[];
+  /** Minimum withdrawal in USD (operator's MIN_PAYOUT_USD). */
+  minPayout: number;
 }
 
 export interface TaxFormRequest {

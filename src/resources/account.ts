@@ -15,6 +15,7 @@ import type {
   TwoFaSetupResponse,
   DepositRequest,
   PayoutRequest,
+  FinanceMethods,
   TaxFormRequest,
   ReportQuery,
   PublisherPlacementRow,
@@ -121,6 +122,10 @@ export class FinanceResource extends Resource {
   }
   deposits(): Promise<unknown[]> {
     return this.c.request('GET', '/v1/finance/deposits');
+  }
+  /** Configured deposit/payout rails + the minimum payout. */
+  methods(): Promise<FinanceMethods> {
+    return this.c.request('GET', '/v1/finance/methods');
   }
   requestPayout(body: PayoutRequest): Promise<Ok> {
     return this.c.request('POST', '/v1/finance/payout', { body });

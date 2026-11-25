@@ -9,6 +9,7 @@ import type {
   Ok,
   CreatePropertyRequest,
   CreatePlacementRequest,
+  SmartlinkTrafficType,
   UpdatePlacementRequest,
   ConsentConfig,
   SaveConsentConfigRequest,
@@ -111,6 +112,12 @@ export class PlacementsResource extends Resource {
   }
   update(id: string, body: UpdatePlacementRequest): Promise<Placement> {
     return this.c.request('PATCH', `/v1/publisher/placements/${encodeURIComponent(id)}`, { body });
+  }
+  /** Create a Smartlink (direct_link, no website needed) and return it with its shareable `directUrl`. */
+  async createSmartlink(body: { name: string; trafficType?: SmartlinkTrafficType; passbackUrl?: string; propertyId?: string }, idempotencyKey?: string): Promise<Placement & { directUrl?: string }> {
+    const pl = await this.create({ ...body, format: 'direct_link' }, idempotencyKey);
+    const t = await this.tag(pl.id);
+    return { ...pl, directUrl: typeof t.directUrl === 'string' ? t.directUrl : undefined };
   }
   /** Delete a placement; its tag stops serving. */
   remove(id: string): Promise<Ok> {
