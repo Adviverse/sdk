@@ -69,6 +69,8 @@ export interface UpdatePlacementRequest {
   /** Auto-ads tuning for a responsive banner placement (stored at settings.auto_ads;
    * omitted keys get defaults). null clears it. Applied to live pages within ~5 min. */
   autoAds?: Partial<AutoAdsSettings> | null;
+  /** true: when no paid ad fills, leave the slot empty instead of an Adviverse promo ad (settings.no_backfill). */
+  noBackfill?: boolean;
 }
 
 /** settings.auto_ads — read by the SDK for `data-auto-ads` / adviverse.autoAds(); wins over data-max. */
