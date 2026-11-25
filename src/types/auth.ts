@@ -135,6 +135,8 @@ export interface ApiKey {
 
 export interface CreateApiKeyRequest {
   name?: string;
+  /** Default ['read']. Each is '*', 'read', 'write', 'admin', '<area>:<read|write>' (e.g. 'publisher:read')
+   *  or '<area>.<resource>:<read|write>' (e.g. 'publisher.placements:write'). Write implies read. */
   scopes?: string[];
   /** Optional expiry in days (1..365). Omitted = never expires. */
   expiresInDays?: number;

@@ -46,6 +46,9 @@ export interface CreatePlacementRequest {
 /** Editable placement fields (propertyId/format/dimensions are fixed at creation). */
 export interface UpdatePlacementRequest {
   name?: string;
+  /** Fixed banner size in px (1-4000). */
+  width?: number;
+  height?: number;
   floorCpm?: number;
   revShare?: number;
   auctionType?: string;

@@ -112,8 +112,12 @@ export class PlacementsResource extends Resource {
   update(id: string, body: UpdatePlacementRequest): Promise<Placement> {
     return this.c.request('PATCH', `/v1/publisher/placements/${encodeURIComponent(id)}`, { body });
   }
+  /** Delete a placement; its tag stops serving. */
+  remove(id: string): Promise<Ok> {
+    return this.c.request('DELETE', `/v1/publisher/placements/${encodeURIComponent(id)}`);
+  }
   /** Install code; responsive banners also carry `autoAdsScript` (site-wide auto-ads tag). */
-  tag(id: string): Promise<{ tag: string; autoAdsScript?: string; [k: string]: unknown }> {
+  tag(id: string): Promise<{ tag: string; autoAdsScript?: string; width?: number; height?: number; [k: string]: unknown }> {
     return this.c.request('GET', `/v1/publisher/placements/${encodeURIComponent(id)}/tag`);
   }
   /**
