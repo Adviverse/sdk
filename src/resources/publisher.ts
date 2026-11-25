@@ -123,8 +123,8 @@ export class PlacementsResource extends Resource {
   remove(id: string): Promise<Ok> {
     return this.c.request('DELETE', `/v1/publisher/placements/${encodeURIComponent(id)}`);
   }
-  /** Install code; responsive banners also carry `autoAdsScript` (site-wide auto-ads tag). */
-  tag(id: string): Promise<{ tag: string; autoAdsScript?: string; width?: number; height?: number; [k: string]: unknown }> {
+  /** Install code; responsive banners also carry `autoAdsScript` (site-wide auto-ads tag); AI chat placements carry `surface: 'ai_chat'` + `endpoint`. */
+  tag(id: string): Promise<{ tag: string; autoAdsScript?: string; surface?: string; endpoint?: string; width?: number; height?: number; [k: string]: unknown }> {
     return this.c.request('GET', `/v1/publisher/placements/${encodeURIComponent(id)}/tag`);
   }
   /**

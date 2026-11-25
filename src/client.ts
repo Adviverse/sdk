@@ -59,7 +59,13 @@ import { PortalTemplatesResource } from './resources/portal-templates.js';
 import { RewardsResource } from './resources/rewards.js';
 import { DspPartnersResource } from './resources/dsp-partners.js';
 import { CpaGoalsResource } from './resources/cpa-goals.js';
+import { OfferwallResource } from './resources/offerwall.js';
+import { ProofsResource } from './resources/proofs.js';
+import { CreativeStudioResource } from './resources/creative-studio.js';
 import { BuyingResource } from './resources/buying.js';
+import { InstantPayoutsResource } from './resources/instant-payouts.js';
+import { AutopilotResource, YieldAutopilotResource } from './resources/autopilot.js';
+import { PushResource } from './resources/push.js';
 
 export class AdNetClient {
   private readonly baseUrl: string;
@@ -121,8 +127,20 @@ export class AdNetClient {
   readonly rewards: RewardsResource;
   readonly dspPartners: DspPartnersResource;
   readonly cpaGoals: CpaGoalsResource;
+  /** Offerwall: publisher walls + callbacks, advertiser opt-in. */
+  readonly offerwall: OfferwallResource;
+  readonly proofs: ProofsResource;
+  readonly creativeStudio: CreativeStudioResource;
   /** Bid suggestion + per-placement performance (allow/block, custom bids). */
   readonly buying: BuyingResource;
+  /** Instant USDC payouts + auto-payout (publisher) and the admin view. */
+  readonly instantPayouts: InstantPayoutsResource;
+  /** Advertiser Autopilot: goal-driven bids/budgets with action log + revert. */
+  readonly autopilot: AutopilotResource;
+  /** Publisher Yield Autopilot: fill-guarded floor tuning + format recommendations. */
+  readonly yieldAutopilot: YieldAutopilotResource;
+  /** Web push: subscription ingest + publisher push placement setup/stats. */
+  readonly push: PushResource;
 
   constructor(opts: AdNetClientOptions) {
     if (!opts?.baseUrl) throw new Error('AdNetClient: baseUrl is required');
@@ -187,7 +205,14 @@ export class AdNetClient {
     this.rewards = new RewardsResource(this);
     this.dspPartners = new DspPartnersResource(this);
     this.cpaGoals = new CpaGoalsResource(this);
+    this.offerwall = new OfferwallResource(this);
+    this.proofs = new ProofsResource(this);
+    this.creativeStudio = new CreativeStudioResource(this);
     this.buying = new BuyingResource(this);
+    this.instantPayouts = new InstantPayoutsResource(this);
+    this.autopilot = new AutopilotResource(this);
+    this.yieldAutopilot = new YieldAutopilotResource(this);
+    this.push = new PushResource(this);
   }
 
   /** Sets (or clears) the bearer session token used for subsequent requests. */

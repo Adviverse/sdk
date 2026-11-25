@@ -41,7 +41,13 @@ export * from './resources/portal-templates.js';
 export * from './resources/dsp-partners.js';
 export * from './resources/rewards.js';
 export * from './resources/cpa-goals.js';
+export * from './resources/offerwall.js';
+export * from './resources/proofs.js';
+export * from './resources/creative-studio.js';
 export * from './resources/buying.js';
+export * from './resources/instant-payouts.js';
+export * from './resources/autopilot.js';
+export * from './resources/push.js';
 export * from './client.js';
 
 import AdNetClient from './client.js';

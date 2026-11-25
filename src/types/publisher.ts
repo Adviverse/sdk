@@ -89,12 +89,19 @@ export interface UpdatePlacementRequest {
  * Render settings by format (400 on a key the format does not take; numbers clamped):
  * social_bar: skin, position · in_page_push: position (corners) ·
  * interstitial: template, close_delay_sec, cover, freq_hours, per_session ·
- * popunder: freq_hours, per_session · native: native.
+ * popunder: freq_hours, per_session · native: native ·
+ * video: skin (player|outstream), sticky, position (corners) · rewarded: unlock_hours, verify_url.
  */
 export interface PlacementRenderSettings {
-  /** Social bar skin (default bar). */
-  skin?: 'bar' | 'in_page_push' | 'icon_notification' | 'custom_widget' | 'interstitial';
-  /** Social bar: any; in-page push: corners only. */
+  /** Social bar skin (default bar); video: player (default) | outstream (in-article player). */
+  skin?: 'bar' | 'in_page_push' | 'icon_notification' | 'custom_widget' | 'interstitial' | 'player' | 'outstream';
+  /** Video outstream: float in the `position` corner when scrolled away mid-play. */
+  sticky?: boolean;
+  /** Rewarded content locker: hours an unlock is remembered, 0-720 (0 = browser session). */
+  unlock_hours?: number;
+  /** Rewarded content locker: https endpoint for server-side verification ('' clears). */
+  verify_url?: string;
+  /** Social bar: any; in-page push + video outstream: corners only. */
   position?: 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   /** Interstitial layout (default card). */
   template?: 'card' | 'fullscreen' | 'split';
