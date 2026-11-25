@@ -160,6 +160,8 @@ export interface PublisherPlacementRow {
   placement_id: string;
   name: string;
   impressions: number;
+  /** Of `impressions`, Adviverse self-promo backfill fills; these earn nothing. */
+  unpaid_impressions: number;
   clicks: number;
   conversions: number;
   revenue: number;
